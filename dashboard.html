@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html class="dark" lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>TENDENCIA 2026 | Business Intelligence Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#c9c6c5",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-container": "#20201f",
+                        "surface-container-highest": "#353535",
+                        "tertiary": "#c6c6c7",
+                        "secondary": "#e9c349",
+                        "background": "#131313",
+                        "on-surface": "#e5e2e1",
+                        "surface": "#131313",
+                        "on-tertiary-container": "#78797a",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-surface-variant": "#c4c7c7",
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                    },
+                    "spacing": {
+                        "stack-sm": "12px",
+                        "margin-mobile": "20px",
+                        "stack-md": "24px",
+                        "stack-lg": "48px",
+                        "gutter": "24px",
+                        "base": "8px",
+                        "container-padding": "40px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Manrope", "sans-serif"],
+                        "headline-sm": ["Sora", "sans-serif"],
+                        "label-caps": ["JetBrains Mono", "monospace"],
+                        "headline-md": ["Sora", "sans-serif"],
+                        "display-lg": ["Sora", "sans-serif"],
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "display-lg": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+    <link rel="stylesheet" href="css/dashboard.css">
+
+<body class="bg-background text-on-surface font-body-md min-h-screen">
+    <!-- Full Screen Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-[#0e0e0e] z-[999] flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="w-16 h-16 border-4 border-secondary border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="font-label-caps text-[14px] text-secondary tracking-widest uppercase">Cargando base de datos...</p>
+    </div>
+    <!-- TopNavBar Header -->
+    <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/5 shadow-sm">
+        <nav class="flex justify-between items-center max-w-[1200px] mx-auto px-margin-mobile md:px-container-padding h-20">
+            <a href="index.html" class="font-display-lg text-headline-md tracking-tighter text-on-surface hover:text-secondary transition-colors">TENDENCIA</a>
+            <div class="flex items-center gap-4">
+                <button class="font-label-caps text-label-caps text-secondary px-6 py-2 border border-secondary/30 rounded-lg hover:bg-secondary/10 transition-all duration-300">
+                    INGRESAR
+                </button>
+                <button id="menu-toggle" onclick="toggleMenu()" class="w-10 h-10 flex items-center justify-center rounded-lg border border-white/10 hover:border-secondary/50 hover:bg-white/5 transition-all">
+                    <span class="material-symbols-outlined text-on-surface-variant">menu</span>
+                </button>
+            </div>
+        </nav>
+        <div id="nav-dropdown" class="hidden absolute top-full right-0 w-64 mt-1 mr-4 glass-panel rounded-xl shadow-2xl border border-white/10 overflow-hidden">
+            <div class="py-2">
+                <a href="index.html#history" class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:text-secondary hover:bg-white/5 transition-all font-headline-sm text-[14px] tracking-tight">
+                    <span class="material-symbols-outlined text-[20px]">history_edu</span>
+                    Historia
+                </a>
+                <a href="dashboard.html" class="flex items-center gap-3 px-6 py-3 text-secondary bg-white/5 font-headline-sm text-[14px] tracking-tight">
+                    <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                    Dashboard 2026
+                </a>
+                <a href="reporte_de_ventas.html" class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:text-secondary hover:bg-white/5 transition-all font-headline-sm text-[14px] tracking-tight">
+                    <span class="material-symbols-outlined text-[20px]">bar_chart</span>
+                    Reporte de Ventas
+                </a>
+                <div class="mx-4 my-1 h-px bg-white/10"></div>
+                <a href="reporte_semanal.html" class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:text-secondary hover:bg-white/5 transition-all font-headline-sm text-[14px] tracking-tight">
+                    <span class="material-symbols-outlined text-[20px]">calendar_view_week</span>
+                    Reporte Semanal
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-stack-lg max-w-[1200px] mx-auto px-margin-mobile md:px-container-padding">
+        <!-- Action Row: Search and Top Button -->
+        <section class="flex flex-col md:flex-row justify-between items-center gap-stack-md mb-stack-lg">
+            <div class="relative w-full md:w-1/2">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                <input id="client-search" class="w-full bg-surface-container border-b-2 border-transparent focus:border-secondary transition-all duration-300 pl-12 pr-4 py-4 rounded-t-lg outline-none text-body-md text-white" placeholder="Buscar cliente" type="text" autocomplete="off">
+                <!-- Autocomplete Dropdown List -->
+                <div id="search-dropdown" class="absolute left-0 w-full mt-1 bg-[#131313]/95 backdrop-blur-xl border border-white/10 rounded-b-lg shadow-2xl z-50 max-h-60 overflow-y-auto hidden divide-y divide-white/5">
+                    <!-- Dynamic autocomplete items -->
+                </div>
+            </div>
+            <button onclick="showTopClients()" class="w-full md:w-auto bg-secondary text-surface px-8 py-4 font-headline-sm text-[18px] rounded-lg shadow-xl shadow-secondary/10 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 text-black font-semibold">
+                <span class="material-symbols-outlined">analytics</span>
+                TOP DE 15 PRIMEROS CLIENTES
+            </button>
+        </section>
+
+        <!-- Stats Grid (Chart & Comparison) -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-stack-lg">
+            <!-- Main Chart Card -->
+            <div class="lg:col-span-2 glass-panel p-stack-md rounded-xl">
+                <div class="flex justify-between items-center mb-stack-md">
+                    <div>
+                        <h2 class="font-headline-sm text-on-surface">Comportamiento de Venta</h2>
+                        <p class="text-on-surface-variant text-sm">Volumen total de ventas facturadas mes a mes 2026</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-[10px] font-label-caps">EN TIEMPO REAL</span>
+                    </div>
+                </div>
+                
+                <!-- Bar Chart Container -->
+                <div class="h-64 flex items-end justify-between gap-2 px-2 relative">
+                    <!-- Gridlines Background -->
+                    <div class="absolute inset-0 flex flex-col justify-between opacity-10 pointer-events-none">
+                        <div class="border-b border-white w-full"></div>
+                        <div class="border-b border-white w-full"></div>
+                        <div class="border-b border-white w-full"></div>
+                        <div class="border-b border-white w-full"></div>
+                    </div>
+                    
+                    <!-- Dynamic Bars (Heights defined by JS based on SheetDB API) -->
+                    <div id="bar-ENE" class="flex-1 bg-surface-container-highest/50 rounded-t-sm hover:bg-secondary transition-all group relative cursor-pointer flex flex-col justify-end" style="height: 5%">
+                        <div class="tooltip-val absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-label-caps text-secondary opacity-0 group-hover:opacity-100 transition-opacity bg-background px-1.5 py-0.5 rounded shadow">S/.0</div>
+                    </div>
+                    <div id="bar-FEB" class="flex-1 bg-surface-container-highest/50 rounded-t-sm hover:bg-secondary transition-all group relative cursor-pointer flex flex-col justify-end" style="height: 5%">
+                        <div class="tooltip-val absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-label-caps text-secondary opacity-0 group-hover:opacity-100 transition-opacity bg-background px-1.5 py-0.5 rounded shadow">S/.0</div>
+                    </div>
+                    <div id="bar-MAR" class="flex-1 bg-surface-container-highest/50 rounded-t-sm hover:bg-secondary transition-all group relative cursor-pointer flex flex-col justify-end" style="height: 5%">
+                        <div class="tooltip-val absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-label-caps text-secondary opacity-0 group-hover:opacity-100 transition-opacity bg-background px-1.5 py-0.5 rounded shadow">S/.0</div>
+                    </div>
+                    <div id="bar-ABR" class="flex-1 bg-surface-container-highest/50 rounded-t-sm hover:bg-secondary transition-all group relative cursor-pointer flex flex-col justify-end" style="height: 5%">
+                        <div class="tooltip-val absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-label-caps text-secondary opacity-0 group-hover:opacity-100 transition-opacity bg-background px-1.5 py-0.5 rounded shadow">S/.0</div>
+                    </div>
+                    <div id="bar-MAY" class="flex-1 bg-surface-container-highest/50 rounded-t-sm hover:bg-secondary transition-all group relative cursor-pointer flex flex-col justify-end" style="height: 5%">
+                        <div class="tooltip-val absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-label-caps text-secondary opacity-0 group-hover:opacity-100 transition-opacity bg-background px-1.5 py-0.5 rounded shadow">S/.0</div>
+                    </div>
+                    <div id="bar-JUN" class="flex-1 bg-surface-container-highest/50 rounded-t-sm hover:bg-secondary transition-all group relative cursor-pointer flex flex-col justify-end" style="height: 5%">
+                        <div class="tooltip-val absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-label-caps text-secondary opacity-0 group-hover:opacity-100 transition-opacity bg-background px-1.5 py-0.5 rounded shadow">S/.0</div>
+                    </div>
+                    <div id="bar-JUL" class="flex-1 bg-surface-container-highest/50 rounded-t-sm hover:bg-secondary transition-all group relative cursor-pointer flex flex-col justify-end" style="height: 5%">
+                        <div class="tooltip-val absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-label-caps text-secondary opacity-0 group-hover:opacity-100 transition-opacity bg-background px-1.5 py-0.5 rounded shadow">S/.0</div>
+                    </div>
+                    <div id="bar-AGO" class="flex-1 bg-surface-container-highest/50 rounded-t-sm hover:bg-secondary transition-all group relative cursor-pointer flex flex-col justify-end" style="height: 5%">
+                        <div class="tooltip-val absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-label-caps text-secondary opacity-0 group-hover:opacity-100 transition-opacity bg-background px-1.5 py-0.5 rounded shadow">S/.0</div>
+                    </div>
+                    <div id="bar-SEP" class="flex-1 bg-surface-container-highest/50 rounded-t-sm hover:bg-secondary transition-all group relative cursor-pointer flex flex-col justify-end" style="height: 5%">
+                        <div class="tooltip-val absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-label-caps text-secondary opacity-0 group-hover:opacity-100 transition-opacity bg-background px-1.5 py-0.5 rounded shadow">S/.0</div>
+                    </div>
+                    <div id="bar-OCT" class="flex-1 bg-surface-container-highest/50 rounded-t-sm hover:bg-secondary transition-all group relative cursor-pointer flex flex-col justify-end" style="height: 5%">
+                        <div class="tooltip-val absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-label-caps text-secondary opacity-0 group-hover:opacity-100 transition-opacity bg-background px-1.5 py-0.5 rounded shadow">S/.0</div>
+                    </div>
+                    <div id="bar-NOV" class="flex-1 bg-surface-container-highest/50 rounded-t-sm hover:bg-secondary transition-all group relative cursor-pointer flex flex-col justify-end" style="height: 5%">
+                        <div class="tooltip-val absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-label-caps text-secondary opacity-0 group-hover:opacity-100 transition-opacity bg-background px-1.5 py-0.5 rounded shadow">S/.0</div>
+                    </div>
+                    <div id="bar-DIC" class="flex-1 bg-surface-container-highest/50 rounded-t-sm hover:bg-secondary transition-all group relative cursor-pointer flex flex-col justify-end" style="height: 5%">
+                        <div class="tooltip-val absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-label-caps text-secondary opacity-0 group-hover:opacity-100 transition-opacity bg-background px-1.5 py-0.5 rounded shadow">S/.0</div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between mt-4 px-2 font-label-caps text-[10px] text-on-surface-variant">
+                    <span>ENE</span><span>FEB</span><span>MAR</span><span>ABR</span><span>MAY</span><span>JUN</span><span>JUL</span><span>AGO</span><span>SEP</span><span>OCT</span><span>NOV</span><span>DIC</span>
+                </div>
+            </div>
+            
+            <!-- Comparison Tool -->
+            <div class="glass-panel p-stack-md rounded-xl flex flex-col justify-between">
+                <div>
+                    <h3 class="font-headline-sm text-on-surface mb-2">Comparativa Mensual</h3>
+                    <p class="text-on-surface-variant text-sm mb-6">Analizar retención entre períodos.</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="font-label-caps text-[10px] text-on-surface-variant">MES BASE</label>
+                        <select id="compare-base" class="w-full bg-surface border border-white/10 rounded-lg py-3 px-4 text-on-surface focus:border-secondary outline-none appearance-none cursor-pointer">
+                            <option value="ENE">Enero 2026</option>
+                            <option value="FEB">Febrero 2026</option>
+                            <option value="MAR">Marzo 2026</option>
+                            <option value="ABR">Abril 2026</option>
+                            <option value="MAY">Mayo 2026</option>
+                            <option value="JUN" selected>Junio 2026</option>
+                            <option value="JUL">Julio 2026</option>
+                            <option value="AGO">Agosto 2026</option>
+                            <option value="SEP">Septiembre 2026</option>
+                            <option value="OCT">Octubre 2026</option>
+                            <option value="NOV">Noviembre 2026</option>
+                            <option value="DIC">Diciembre 2026</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-center">
+                        <span class="material-symbols-outlined text-secondary hover:rotate-180 transition-transform duration-500 cursor-pointer" onclick="swapCompareMonths()">compare_arrows</span>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="font-label-caps text-[10px] text-on-surface-variant">MES COMPARACIÓN</label>
+                        <select id="compare-target" class="w-full bg-surface border border-white/10 rounded-lg py-3 px-4 text-on-surface focus:border-secondary outline-none appearance-none cursor-pointer">
+                            <option value="ENE">Enero 2026</option>
+                            <option value="FEB">Febrero 2026</option>
+                            <option value="MAR">Marzo 2026</option>
+                            <option value="ABR">Abril 2026</option>
+                            <option value="MAY">Mayo 2026</option>
+                            <option value="JUN">Junio 2026</option>
+                            <option value="JUL">Julio 2026</option>
+                            <option value="AGO">Agosto 2026</option>
+                            <option value="SEP">Septiembre 2026</option>
+                            <option value="OCT">Octubre 2026</option>
+                            <option value="NOV" selected>Noviembre 2026</option>
+                            <option value="DIC">Diciembre 2026</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="generateCrossOverReport()" class="mt-6 w-full py-4 border border-secondary text-secondary rounded-lg font-label-caps hover:bg-secondary/10 transition-colors uppercase tracking-wider font-semibold text-xs">
+                    GENERAR REPORTE COMPARATIVO
+                </button>
+            </div>
+        </section>
+
+        <!-- New Clients Section (Bento Grid Style) -->
+        <section class="mb-stack-lg">
+            <div class="flex items-center gap-4 mb-stack-md">
+                <h2 class="font-headline-md text-on-surface">CLIENTES NUEVOS</h2>
+                <div class="h-[1px] flex-1 bg-white/10"></div>
+            </div>
+            
+            <!-- Month Button Grid -->
+            <div id="month-buttons-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+                <button id="btn-month-ENE" onclick="selectMonth('ENE')" class="group glass-panel p-6 rounded-xl border border-transparent hover:border-secondary/30 transition-all text-center">
+                    <div class="font-label-caps text-[12px] text-on-surface-variant group-hover:text-secondary mb-2">MES 1</div>
+                    <div class="font-headline-sm group-hover:scale-110 transition-transform text-white">ENE</div>
+                </button>
+                <button id="btn-month-FEB" onclick="selectMonth('FEB')" class="group glass-panel p-6 rounded-xl border border-transparent hover:border-secondary/30 transition-all text-center">
+                    <div class="font-label-caps text-[12px] text-on-surface-variant group-hover:text-secondary mb-2">MES 2</div>
+                    <div class="font-headline-sm group-hover:scale-110 transition-transform text-white">FEB</div>
+                </button>
+                <button id="btn-month-MAR" onclick="selectMonth('MAR')" class="group glass-panel p-6 rounded-xl border border-transparent hover:border-secondary/30 transition-all text-center">
+                    <div class="font-label-caps text-[12px] text-on-surface-variant group-hover:text-secondary mb-2">MES 3</div>
+                    <div class="font-headline-sm group-hover:scale-110 transition-transform text-white">MAR</div>
+                </button>
+                <button id="btn-month-ABR" onclick="selectMonth('ABR')" class="group glass-panel p-6 rounded-xl border border-transparent hover:border-secondary/30 transition-all text-center">
+                    <div class="font-label-caps text-[12px] text-on-surface-variant group-hover:text-secondary mb-2">MES 4</div>
+                    <div class="font-headline-sm group-hover:scale-110 transition-transform text-white">ABR</div>
+                </button>
+                <button id="btn-month-MAY" onclick="selectMonth('MAY')" class="group glass-panel p-6 rounded-xl border border-transparent hover:border-secondary/30 transition-all text-center">
+                    <div class="font-label-caps text-[12px] text-on-surface-variant group-hover:text-secondary mb-2">MES 5</div>
+                    <div class="font-headline-sm group-hover:scale-110 transition-transform text-white">MAY</div>
+                </button>
+                <button id="btn-month-JUN" onclick="selectMonth('JUN')" class="group glass-panel p-6 rounded-xl border border-transparent hover:border-secondary/30 transition-all text-center">
+                    <div class="font-label-caps text-[12px] text-on-surface-variant group-hover:text-secondary mb-2">MES 6</div>
+                    <div class="font-headline-sm group-hover:scale-110 transition-transform text-white">JUN</div>
+                </button>
+                <button id="btn-month-JUL" onclick="selectMonth('JUL')" class="group glass-panel p-6 rounded-xl border border-transparent hover:border-secondary/30 transition-all text-center">
+                    <div class="font-label-caps text-[12px] text-on-surface-variant group-hover:text-secondary mb-2">MES 7</div>
+                    <div class="font-headline-sm group-hover:scale-110 transition-transform text-white">JUL</div>
+                </button>
+                <button id="btn-month-AGO" onclick="selectMonth('AGO')" class="group glass-panel p-6 rounded-xl border border-transparent hover:border-secondary/30 transition-all text-center">
+                    <div class="font-label-caps text-[12px] text-on-surface-variant group-hover:text-secondary mb-2">MES 8</div>
+                    <div class="font-headline-sm group-hover:scale-110 transition-transform text-white">AGO</div>
+                </button>
+                <button id="btn-month-SEP" onclick="selectMonth('SEP')" class="group glass-panel p-6 rounded-xl border border-transparent hover:border-secondary/30 transition-all text-center">
+                    <div class="font-label-caps text-[12px] text-on-surface-variant group-hover:text-secondary mb-2">MES 9</div>
+                    <div class="font-headline-sm group-hover:scale-110 transition-transform text-white">SEP</div>
+                </button>
+                <button id="btn-month-OCT" onclick="selectMonth('OCT')" class="group glass-panel p-6 rounded-xl border border-transparent hover:border-secondary/30 transition-all text-center">
+                    <div class="font-label-caps text-[12px] text-on-surface-variant group-hover:text-secondary mb-2">MES 10</div>
+                    <div class="font-headline-sm group-hover:scale-110 transition-transform text-white">OCT</div>
+                </button>
+                <button id="btn-month-NOV" onclick="selectMonth('NOV')" class="group glass-panel p-6 rounded-xl border border-transparent hover:border-secondary/30 transition-all text-center">
+                    <div class="font-label-caps text-[12px] text-on-surface-variant group-hover:text-secondary mb-2">MES 11</div>
+                    <div class="font-headline-sm group-hover:scale-110 transition-transform text-white">NOV</div>
+                </button>
+                <button id="btn-month-DIC" onclick="selectMonth('DIC')" class="group glass-panel p-6 rounded-xl border border-transparent hover:border-secondary/30 transition-all text-center">
+                    <div class="font-label-caps text-[12px] text-on-surface-variant group-hover:text-secondary mb-2">MES 12</div>
+                    <div class="font-headline-sm group-hover:scale-110 transition-transform text-white">DIC</div>
+                </button>
+            </div>
+
+            <!-- New Clients List Detail -->
+            <div class="glass-panel p-stack-md rounded-xl shadow-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="font-headline-sm text-on-surface">Nuevos Clientes de <span id="selected-month-title" class="text-secondary">— Selecciona un mes</span></h3>
+                    </div>
+                    <span id="new-clients-count" class="bg-secondary text-surface text-xs font-bold font-label-caps px-3 py-1 rounded-full text-black" style="display:none"></span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-on-surface">
+                        <thead>
+                            <tr class="border-b border-white/10 text-on-surface-variant font-label-caps text-xs">
+                                <th class="pb-3 pl-2">Cliente</th>
+                                <th class="pb-3 text-center">Vendedor</th>
+                                <th class="pb-3 text-right">Compra Inicial</th>
+                            </tr>
+                        </thead>
+                        <tbody id="new-clients-table-body" class="divide-y divide-white/5">
+                            <!-- Injected by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+
+    </main>
+
+    <!-- Top 15 Clients Modal -->
+    <div id="top-clients-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden z-50">
+        <div class="glass-panel p-8 rounded-2xl w-full max-w-4xl mx-4 border border-white/10 shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 pb-2 border-b border-white/10">
+                <h3 class="text-2xl font-display-lg text-secondary flex items-center gap-2 font-bold font-display-lg">
+                    <span class="material-symbols-outlined text-secondary text-3xl">emoji_events</span>
+                    Top 15 Clientes de Élite 2026
+                </h3>
+                <button onclick="closeTopClients()" class="p-2 text-on-surface-variant hover:text-secondary rounded-full hover:bg-white/5 transition-all">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-on-surface">
+                    <thead>
+                        <tr class="text-on-surface-variant font-label-caps text-xs border-b border-white/10">
+                            <th class="pb-3 pl-2 text-center w-12">Rango</th>
+                            <th class="pb-3">Cliente</th>
+                            <th class="pb-3 text-center">Vendedor Asignado</th>
+                            <th class="pb-3 text-right">Venta Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top-clients-table-body" class="divide-y divide-white/5">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cross-Over Report Modal -->
+    <div id="crossover-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden z-50">
+        <div class="glass-panel p-8 rounded-2xl w-full max-w-5xl mx-4 border border-white/10 shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 pb-2 border-b border-white/10">
+                <h3 class="text-2xl font-display-lg text-secondary flex items-center gap-2 font-bold font-display-lg">
+                    <span class="material-symbols-outlined text-secondary text-3xl">compare</span>
+                    Reporte de Transición & Cross-Over
+                </h3>
+                <button onclick="closeCrossoverModal()" class="p-2 text-on-surface-variant hover:text-secondary rounded-full hover:bg-white/5 transition-all">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <!-- Comparative Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="glass-panel p-6 rounded-xl border-l-4 border-slate-500">
+                    <p class="text-slate-400 text-xs font-label-caps">VENTA TOTAL <span id="co-month-a-label">MES A</span></p>
+                    <p class="text-3xl font-bold text-white mt-1" id="co-val-a">$0.00</p>
+                </div>
+                <div class="glass-panel p-6 rounded-xl border-l-4 border-secondary">
+                    <p class="text-slate-400 text-xs font-label-caps">VENTA TOTAL <span id="co-month-b-label">MES B</span></p>
+                    <p class="text-3xl font-bold text-white mt-1" id="co-val-b">$0.00</p>
+                </div>
+                <div class="glass-panel p-6 rounded-xl border-l-4 border-emerald-500" id="co-delta-card">
+                    <p class="text-slate-400 text-xs font-label-caps">VARIACIÓN INTER-MENSUAL</p>
+                    <div class="flex items-baseline gap-2">
+                        <p class="text-3xl font-bold text-white mt-1" id="co-delta-val">$0.00</p>
+                        <span class="text-sm font-semibold text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded" id="co-delta-perc">+0.0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side by Side Tables -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Churn: In A but not B -->
+                <div class="glass-panel rounded-xl overflow-hidden border border-red-950/40">
+                    <div class="p-4 bg-red-950/20 border-b border-white/5">
+                        <h4 class="text-red-400 font-headline-sm text-sm flex items-center gap-2 uppercase tracking-wider font-bold">
+                            <span class="material-symbols-outlined text-red-400">trending_down</span>
+                            Clientes Inactivos en Período B
+                        </h4>
+                        <p class="text-slate-400 text-xs mt-1">Registraron compras en el Mes Base pero no en el Mes de Comparación.</p>
+                    </div>
+                    <div class="max-h-72 overflow-y-auto overflow-x-auto">
+                        <table class="w-full text-left text-sm min-w-[400px]">
+                            <thead class="bg-surface-container text-on-surface-variant font-label-caps text-xs sticky top-0 border-b border-white/5">
+                                <tr>
+                                    <th class="px-4 py-2">Cliente</th>
+                                    <th class="px-4 py-2 text-right">Venta Anterior</th>
+                                    <th class="px-4 py-2 text-center">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="co-churn-body" class="divide-y divide-white/5 text-xs text-on-surface">
+                                <!-- Filled by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recaptured/New: In B but not A -->
+                <div class="glass-panel rounded-xl overflow-hidden border border-emerald-950/40">
+                    <div class="p-4 bg-emerald-950/20 border-b border-white/5">
+                        <h4 class="text-emerald-400 font-headline-sm text-sm flex items-center gap-2 uppercase tracking-wider font-bold">
+                            <span class="material-symbols-outlined text-emerald-400">trending_up</span>
+                            Clientes Activados en Período B
+                        </h4>
+                        <p class="text-slate-400 text-xs mt-1">Registraron compras en el Mes de Comparación pero no en el Mes Base.</p>
+                    </div>
+                    <div class="max-h-72 overflow-y-auto overflow-x-auto">
+                        <table class="w-full text-left text-sm min-w-[400px]">
+                            <thead class="bg-surface-container text-on-surface-variant font-label-caps text-xs sticky top-0 border-b border-white/5">
+                                <tr>
+                                    <th class="px-4 py-2">Cliente</th>
+                                    <th class="px-4 py-2 text-right">Venta Nueva</th>
+                                    <th class="px-4 py-2 text-center">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="co-new-body" class="divide-y divide-white/5 text-xs text-on-surface">
+                                <!-- Filled by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full py-stack-lg bg-surface-container-lowest border-t border-white/5 mt-12">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-stack-md max-w-[1200px] mx-auto px-margin-mobile">
+            <div class="flex flex-col gap-2 items-center md:items-start">
+                <div class="font-display-lg text-headline-sm text-on-surface">TENDENCIA</div>
+                <p class="font-label-caps text-label-caps text-on-tertiary-container">© 2026 JOSEDAEL. TODOS LOS DERECHOS RESERVADOS.</p>
+            </div>
+            <div class="flex gap-stack-sm items-center relative">
+                <a class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-secondary hover:bg-secondary/10 transition-all" href="https://rediplastsac.com.pe/" target="_blank" title="Visitar sitio web">
+                    <span class="material-symbols-outlined text-[20px] text-on-tertiary-container">language</span>
+                </a>
+                <button id="share-btn" onclick="toggleShareMenu()" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-secondary hover:bg-secondary/10 transition-all cursor-pointer" title="Compartir">
+                    <span class="material-symbols-outlined text-[20px] text-on-tertiary-container">share</span>
+                </button>
+                <div id="share-menu" class="hidden absolute bottom-14 left-1/2 -translate-x-1/2 glass-panel rounded-xl shadow-2xl border border-white/10 p-3 min-w-[220px] z-50">
+                    <p class="font-label-caps text-[10px] text-on-tertiary-container mb-2 px-1">COMPARTIR PÁGINA</p>
+                    <button onclick="shareWhatsApp()" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-on-surface-variant hover:text-green-400 hover:bg-green-500/10 transition-all">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741 .981.998-3.648-.235-.374A9.86 9.86 0 012.087 12c.002-5.46 4.446-9.9 9.91-9.9 2.647 0 5.135 1.033 7.005 2.907A9.82 9.82 0 0121.91 12.002c-.002 5.46-4.447 9.9-9.91 9.9m0-21.8C5.438 0 .002 5.43 0 12.07c0 2.122.555 4.197 1.612 6.028L.057 23.93l6.003-1.574A11.88 11.88 0 0012.05 24C18.624 24 24.06 18.563 24.062 12 24.062 5.438 18.627 0 12.05 0"/></svg>
+                        Enviar por WhatsApp
+                    </button>
+                    <button onclick="copyPageLink()" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-on-surface-variant hover:text-secondary hover:bg-white/5 transition-all">
+                        <span class="material-symbols-outlined text-[16px] flex-shrink-0">content_copy</span>
+                        Copiar enlace
+                    </button>
+                    <button onclick="nativeShare()" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-on-surface-variant hover:text-secondary hover:bg-white/5 transition-all">
+                        <span class="material-symbols-outlined text-[16px] flex-shrink-0">open_in_new</span>
+                        Más opciones
+                    </button>
+                </div>
+                <a class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-green-500 hover:bg-green-500/10 transition-all group" href="https://wa.me/51930714244?text=Hola%20Daniel%20necesito%20ayuda%20con%20la%20pagina" target="_blank" title="Soporte WhatsApp">
+                    <svg class="w-5 h-5 text-on-tertiary-container group-hover:text-green-400 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741 .981.998-3.648-.235-.374A9.86 9.86 0 012.087 12c.002-5.46 4.446-9.9 9.91-9.9 2.647 0 5.135 1.033 7.005 2.907A9.82 9.82 0 0121.91 12.002c-.002 5.46-4.447 9.9-9.91 9.9m0-21.8C5.438 0 .002 5.43 0 12.07c0 2.122.555 4.197 1.612 6.028L.057 23.93l6.003-1.574A11.88 11.88 0 0012.05 24C18.624 24 24.06 18.563 24.062 12 24.062 5.438 18.627 0 12.05 0"/></svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Logic (Mock Database and Behaviors) -->
+    
+    <script src="js/dashboard.js"></script>
+
+    <!-- Client Detail Floating Modal -->
+    <div id="client-detail-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden z-50 p-4" onclick="if(event.target === this) closeClientDetail()">
+        <div class="glass-panel p-8 rounded-2xl w-full max-w-2xl mx-auto border border-white/10 shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 pb-2 border-b border-white/10">
+                <h3 class="text-2xl font-display-lg text-secondary flex items-center gap-2 font-bold">
+                    <span class="material-symbols-outlined text-secondary text-3xl">account_circle</span>
+                    Ficha del Cliente
+                </h3>
+                <button onclick="closeClientDetail()" class="p-2 text-on-surface-variant hover:text-secondary rounded-full hover:bg-white/5 transition-all">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="glass-panel p-4 rounded-xl border border-white/5">
+                    <p class="text-slate-400 text-xs font-label-caps">CLIENTE / RAZÓN SOCIAL</p>
+                    <p class="text-lg font-bold text-white mt-1" id="detail-client-name">-</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-white/5">
+                    <p class="text-slate-400 text-xs font-label-caps">VENDEDOR CORRESPONDIENTE</p>
+                    <p class="text-lg font-bold text-secondary mt-1" id="detail-client-seller">-</p>
+                </div>
+            </div>
+            <div class="glass-panel p-6 rounded-xl border border-white/5 mb-6">
+                <h4 class="text-white font-headline-sm text-sm uppercase tracking-wider font-bold mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">trending_up</span>
+                    Historial de Compras 2026
+                </h4>
+                <!-- Monthly Bar Chart - altura aumentada para tooltips legibles -->
+                <div class="h-64 flex items-end justify-between gap-1 px-2 relative mb-3 bg-[#0e0e0e]/40 rounded-lg p-4 pt-10 border border-white/5 overflow-visible" id="detail-monthly-chart">
+                    <!-- Injected monthly bars -->
+                </div>
+                <div class="flex justify-between px-2 font-label-caps text-[10px] text-on-surface-variant">
+                    <span>ENE</span><span>FEB</span><span>MAR</span><span>ABR</span><span>MAY</span><span>JUN</span><span>JUL</span><span>AGO</span><span>SEP</span><span>OCT</span><span>NOV</span><span>DIC</span>
+                </div>
+            </div>
+            <div class="flex justify-between items-center glass-panel p-4 rounded-xl border-l-4 border-secondary">
+                <p class="text-slate-400 text-xs font-label-caps uppercase">Total Compras Acumuladas</p>
+                <p class="text-2xl font-bold text-emerald-400 font-mono" id="detail-total-accumulated">S/.0.00</p>
+            </div>
+        </div>
+    </div>
+    <script src="js/index.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+body {
+    background-color: #0A0A0A;
+    color: #e5e2e1;
+    -webkit-font-smoothing: antialiased;
+}
+.glass-card {
+    background: rgba(26, 26, 26, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-card:hover {
+    border-color: rgba(233, 195, 73, 0.3);
+    transform: translateY(-2px);
+}
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+.hero-gradient {
+    background: radial-gradient(circle at 50% -20%, rgba(233, 195, 73, 0.1) 0%, transparent 70%);
+}
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #0A0A0A;
+}
+::-webkit-scrollbar-thumb {
+    background: #353535;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #e9c349;
+}
+.glass-panel {
+    background: rgba(26, 26, 26, 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}

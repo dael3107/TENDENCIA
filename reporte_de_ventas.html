@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html class="dark" lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>TENDENCIA - Reporte de Ventas</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/reporte_de_ventas.css">
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#e9c349",
+                    "on-background": "#e5e2e1",
+                    "on-surface-variant": "#c4c7c7",
+                    "surface-container": "#20201f",
+                    "surface-container-high": "#2a2a2a",
+                    "background": "#131313",
+                    "on-surface": "#e5e2e1",
+                    "surface-container-highest": "#353535",
+                    "surface-container-lowest": "#0e0e0e",
+                    "surface-container-low": "#1c1b1b",
+                    "surface": "#131313"
+            },
+            "borderRadius": {
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-lg": "48px",
+                    "margin-mobile": "20px",
+                    "gutter": "24px",
+                    "container-padding": "40px",
+                    "base": "8px",
+                    "stack-sm": "12px",
+                    "stack-md": "24px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Sora", "sans-serif"],
+                    "body-md": ["Manrope", "sans-serif"],
+                    "headline-sm": ["Sora", "sans-serif"],
+                    "display-lg-mobile": ["Sora", "sans-serif"],
+                    "label-caps": ["JetBrains Mono", "monospace"],
+                    "display-lg": ["Sora", "sans-serif"],
+                    "body-lg": ["Manrope", "sans-serif"]
+            },
+            "fontSize": {
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "display-lg-mobile": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                    "display-lg": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+</head>
+<body class="font-body-md text-body-md overflow-x-hidden min-h-screen">
+    <!-- Full Screen Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-[#0e0e0e] z-[999] flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="w-16 h-16 border-4 border-secondary border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="font-label-caps text-[14px] text-secondary tracking-widest uppercase">Cargando reporte comercial...</p>
+    </div>
+
+    <!-- TopNavBar -->
+    <nav class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-white/5 h-20">
+        <div class="max-w-[1200px] mx-auto flex justify-between items-center h-full px-container-padding">
+            <a class="font-display-lg text-headline-md tracking-tighter text-on-surface hover:text-secondary transition-colors" href="index.html">TENDENCIA</a>
+            <div class="flex items-center gap-4">
+                <button class="font-label-caps text-label-caps text-on-surface/80 hover:text-secondary border border-white/10 hover:border-secondary/40 px-4 py-2 rounded-lg transition-all duration-300">
+                    INGRESAR
+                </button>
+                <button id="menu-toggle" onclick="toggleMenu()" class="w-10 h-10 flex items-center justify-center rounded-lg border border-white/10 hover:border-secondary/50 hover:bg-white/5 transition-all">
+                    <span class="material-symbols-outlined text-on-surface-variant">menu</span>
+                </button>
+            </div>
+        </div>
+        <div id="nav-dropdown" class="hidden absolute top-full right-0 w-64 mt-1 mr-4 glass-panel rounded-xl shadow-2xl border border-white/10 overflow-hidden">
+            <div class="py-2">
+                <a href="index.html#history" class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:text-secondary hover:bg-white/5 transition-all font-headline-sm text-[14px] tracking-tight">
+                    <span class="material-symbols-outlined text-[20px]">history_edu</span>
+                    Historia
+                </a>
+                <a href="dashboard.html" class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:text-secondary hover:bg-white/5 transition-all font-headline-sm text-[14px] tracking-tight">
+                    <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                    Dashboard 2026
+                </a>
+                <a href="reporte_de_ventas.html" class="flex items-center gap-3 px-6 py-3 text-secondary bg-white/5 font-headline-sm text-[14px] tracking-tight">
+                    <span class="material-symbols-outlined text-[20px]">bar_chart</span>
+                    Reporte de Ventas
+                </a>
+                <div class="mx-4 my-1 h-px bg-white/10"></div>
+                <a href="reporte_semanal.html" class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:text-secondary hover:bg-white/5 transition-all font-headline-sm text-[14px] tracking-tight">
+                    <span class="material-symbols-outlined text-[20px]">calendar_view_week</span>
+                    Reporte Semanal
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-32 pb-stack-lg min-h-screen hero-gradient">
+        <div class="max-w-[1200px] mx-auto px-container-padding">
+            <!-- Header Section -->
+            <header class="mb-stack-lg">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-gutter">
+                    <div class="space-y-base">
+                        <span class="font-label-caps text-label-caps text-secondary tracking-widest">ANÁLISIS COMERCIAL</span>
+                        <h1 class="font-display-lg text-display-lg-mobile md:text-display-lg leading-none">Reporte de Ventas</h1>
+                    </div>
+                    <div class="flex items-center gap-gutter">
+                        <button onclick="fetchClientsData()" class="h-12 w-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors">
+                            <span class="material-symbols-outlined">refresh</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+            <!-- Sales Entities Section -->
+            <section class="space-y-gutter">
+                <!-- Entity Row: Roberto -->
+                <div id="row-ROBERTO" class="flex flex-col md:flex-row items-stretch md:items-center gap-gutter group border border-transparent rounded-lg transition-all" style="opacity: 1; transform: translateY(0px);">
+                    <button onclick="selectEntity('ROBERTO')" class="glass-card flex-grow flex items-center justify-between p-stack-md rounded-lg group-hover:bg-surface-container-low transition-all">
+                        <div class="flex items-center gap-stack-md">
+                            <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/20 overflow-hidden">
+                                <span class="material-symbols-outlined text-secondary text-2xl">person</span>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="font-headline-sm text-headline-sm">Roberto</h3>
+                                <p class="font-label-caps text-[10px] text-on-surface-variant">Líder de Ventas Estratégicas</p>
+                            </div>
+                        </div>
+                        <div class="hidden sm:flex items-center gap-stack-lg">
+                            <div class="text-right">
+                                <p class="font-label-caps text-label-caps text-on-surface-variant">VENTA TOTAL</p>
+                                <p class="font-body-lg text-secondary font-mono font-bold" id="sales-total-ROBERTO">S/. 0.00</p>
+                            </div>
+                            <span class="material-symbols-outlined text-on-surface/20 group-hover:text-secondary transition-colors">arrow_forward_ios</span>
+                        </div>
+                    </button>
+                    <button onclick="openEntityNewClients('ROBERTO')" class="md:w-64 h-auto md:h-full border border-white/10 rounded-lg flex items-center justify-center gap-base font-label-caps text-label-caps py-4 px-stack-md hover:bg-white/5 hover:border-white/20 transition-all text-on-surface/80 group-hover:text-on-surface">
+                        <span class="material-symbols-outlined text-[18px]">person_add</span>
+                        CLIENTES NUEVOS
+                    </button>
+                </div>
+
+                <!-- Entity Row: Ernesto -->
+                <div id="row-ERNESTO" class="flex flex-col md:flex-row items-stretch md:items-center gap-gutter group border border-transparent rounded-lg transition-all" style="opacity: 1; transform: translateY(0px);">
+                    <button onclick="selectEntity('ERNESTO')" class="glass-card flex-grow flex items-center justify-between p-stack-md rounded-lg group-hover:bg-surface-container-low transition-all">
+                        <div class="flex items-center gap-stack-md">
+                            <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/20 overflow-hidden">
+                                <span class="material-symbols-outlined text-secondary text-2xl">person</span>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="font-headline-sm text-headline-sm">Ernesto</h3>
+                                <p class="font-label-caps text-[10px] text-on-surface-variant">Director Regional de Cuentas</p>
+                            </div>
+                        </div>
+                        <div class="hidden sm:flex items-center gap-stack-lg">
+                            <div class="text-right">
+                                <p class="font-label-caps text-label-caps text-on-surface-variant">VENTA TOTAL</p>
+                                <p class="font-body-lg text-secondary font-mono font-bold" id="sales-total-ERNESTO">S/. 0.00</p>
+                            </div>
+                            <span class="material-symbols-outlined text-on-surface/20 group-hover:text-secondary transition-colors">arrow_forward_ios</span>
+                        </div>
+                    </button>
+                    <button onclick="openEntityNewClients('ERNESTO')" class="md:w-64 h-auto md:h-full border border-white/10 rounded-lg flex items-center justify-center gap-base font-label-caps text-label-caps py-4 px-stack-md hover:bg-white/5 hover:border-white/20 transition-all text-on-surface/80 group-hover:text-on-surface">
+                        <span class="material-symbols-outlined text-[18px]">person_add</span>
+                        CLIENTES NUEVOS
+                    </button>
+                </div>
+
+                <!-- Entity Row: Oficina -->
+                <div id="row-OFICINA" class="flex flex-col md:flex-row items-stretch md:items-center gap-gutter group border border-transparent rounded-lg transition-all" style="opacity: 1; transform: translateY(0px);">
+                    <button onclick="selectEntity('OFICINA')" class="glass-card flex-grow flex items-center justify-between p-stack-md rounded-lg group-hover:bg-surface-container-low transition-all">
+                        <div class="flex items-center gap-stack-md">
+                            <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/20">
+                                <span class="material-symbols-outlined text-secondary">corporate_fare</span>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="font-headline-sm text-headline-sm">Oficina</h3>
+                                <p class="font-label-caps text-[10px] text-on-surface-variant">Sede Central / Administrativo</p>
+                            </div>
+                        </div>
+                        <div class="hidden sm:flex items-center gap-stack-lg">
+                            <div class="text-right">
+                                <p class="font-label-caps text-label-caps text-on-surface-variant">VENTA TOTAL</p>
+                                <p class="font-body-lg text-secondary font-mono font-bold" id="sales-total-OFICINA">S/. 0.00</p>
+                            </div>
+                            <span class="material-symbols-outlined text-on-surface/20 group-hover:text-secondary transition-colors">arrow_forward_ios</span>
+                        </div>
+                    </button>
+                    <button onclick="openEntityNewClients('OFICINA')" class="md:w-64 h-auto md:h-full border border-white/10 rounded-lg flex items-center justify-center gap-base font-label-caps text-label-caps py-4 px-stack-md hover:bg-white/5 hover:border-white/20 transition-all text-on-surface/80 group-hover:text-on-surface">
+                        <span class="material-symbols-outlined text-[18px]">person_add</span>
+                        CLIENTES NUEVOS
+                    </button>
+                </div>
+
+                <!-- Entity Row: Rediplast -->
+                <div id="row-REDIPLAST" class="flex flex-col md:flex-row items-stretch md:items-center gap-gutter group border border-transparent rounded-lg transition-all" style="opacity: 1; transform: translateY(0px);">
+                    <button onclick="selectEntity('REDIPLAST')" class="glass-card flex-grow flex items-center justify-between p-stack-md rounded-lg group-hover:bg-surface-container-low transition-all">
+                        <div class="flex items-center gap-stack-md">
+                            <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/20">
+                                <span class="material-symbols-outlined text-secondary">factory</span>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="font-headline-sm text-headline-sm">Rediplast</h3>
+                                <p class="font-label-caps text-[10px] text-on-surface-variant">División de Manufactura &amp; Distribución</p>
+                            </div>
+                        </div>
+                        <div class="hidden sm:flex items-center gap-stack-lg">
+                            <div class="text-right">
+                                <p class="font-label-caps text-label-caps text-on-surface-variant">VENTA TOTAL</p>
+                                <p class="font-body-lg text-secondary font-mono font-bold" id="sales-total-REDIPLAST">S/. 0.00</p>
+                            </div>
+                            <span class="material-symbols-outlined text-on-surface/20 group-hover:text-secondary transition-colors">arrow_forward_ios</span>
+                        </div>
+                    </button>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full py-stack-lg bg-surface-container-lowest border-t border-white/5">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-stack-md max-w-[1200px] mx-auto px-margin-mobile">
+            <div class="flex flex-col gap-2 items-center md:items-start">
+                <div class="font-display-lg text-headline-sm text-on-surface">TENDENCIA</div>
+                <p class="font-label-caps text-label-caps text-on-tertiary-container">© 2026 JOSEDAEL. TODOS LOS DERECHOS RESERVADOS.</p>
+            </div>
+            <div class="flex gap-stack-sm items-center relative">
+                <a class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-secondary hover:bg-secondary/10 transition-all" href="https://rediplastsac.com.pe/" target="_blank" title="Visitar sitio web">
+                    <span class="material-symbols-outlined text-[20px] text-on-tertiary-container">language</span>
+                </a>
+                <button id="share-btn" onclick="toggleShareMenu()" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-secondary hover:bg-secondary/10 transition-all cursor-pointer" title="Compartir">
+                    <span class="material-symbols-outlined text-[20px] text-on-tertiary-container">share</span>
+                </button>
+                <div id="share-menu" class="hidden absolute bottom-14 left-1/2 -translate-x-1/2 glass-panel rounded-xl shadow-2xl border border-white/10 p-3 min-w-[220px] z-50">
+                    <p class="font-label-caps text-[10px] text-on-tertiary-container mb-2 px-1">COMPARTIR PÁGINA</p>
+                    <button onclick="shareWhatsApp()" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-on-surface-variant hover:text-green-400 hover:bg-green-500/10 transition-all">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741 .981.998-3.648-.235-.374A9.86 9.86 0 012.087 12c.002-5.46 4.446-9.9 9.91-9.9 2.647 0 5.135 1.033 7.005 2.907A9.82 9.82 0 0121.91 12.002c-.002 5.46-4.447 9.9-9.91 9.9m0-21.8C5.438 0 .002 5.43 0 12.07c0 2.122.555 4.197 1.612 6.028L.057 23.93l6.003-1.574A11.88 11.88 0 0012.05 24C18.624 24 24.06 18.563 24.062 12 24.062 5.438 18.627 0 12.05 0"/></svg>
+                        Enviar por WhatsApp
+                    </button>
+                    <button onclick="copyPageLink()" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-on-surface-variant hover:text-secondary hover:bg-white/5 transition-all">
+                        <span class="material-symbols-outlined text-[16px] flex-shrink-0">content_copy</span>
+                        Copiar enlace
+                    </button>
+                    <button onclick="nativeShare()" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-on-surface-variant hover:text-secondary hover:bg-white/5 transition-all">
+                        <span class="material-symbols-outlined text-[16px] flex-shrink-0">open_in_new</span>
+                        Más opciones
+                    </button>
+                </div>
+                <a class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-green-500 hover:bg-green-500/10 transition-all group" href="https://wa.me/51930714244?text=Hola%20Daniel%20necesito%20ayuda%20con%20la%20pagina" target="_blank" title="Soporte WhatsApp">
+                    <svg class="w-5 h-5 text-on-tertiary-container group-hover:text-green-400 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741 .981.998-3.648-.235-.374A9.86 9.86 0 012.087 12c.002-5.46 4.446-9.9 9.91-9.9 2.647 0 5.135 1.033 7.005 2.907A9.82 9.82 0 0121.91 12.002c-.002 5.46-4.447 9.9-9.91 9.9m0-21.8C5.438 0 .002 5.43 0 12.07c0 2.122.555 4.197 1.612 6.028L.057 23.93l6.003-1.574A11.88 11.88 0 0012.05 24C18.624 24 24.06 18.563 24.062 12 24.062 5.438 18.627 0 12.05 0"/></svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Vendor History Modal -->
+    <div id="vendor-history-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden z-50 p-4" onclick="if(event.target === this) closeVendorHistory()">
+        <div class="glass-panel p-6 md:p-8 rounded-2xl w-full max-w-[1200px] mx-auto border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto bg-surface">
+            <div class="flex justify-between items-center mb-6 pb-2 border-b border-white/10">
+                <h3 class="text-2xl font-display-lg text-secondary flex items-center gap-2 font-bold" id="vendor-modal-title">
+                    Historial de Ventas
+                </h3>
+                <button onclick="closeVendorHistory()" class="p-2 text-on-surface-variant hover:text-secondary rounded-full hover:bg-white/5 transition-all">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left: Chart -->
+                <div class="lg:col-span-2 glass-panel p-6 rounded-xl border border-white/5">
+                    <h4 class="text-white font-headline-sm text-sm uppercase tracking-wider font-bold mb-6 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary">bar_chart</span>
+                        Comparativa Anual 2025 vs 2026
+                    </h4>
+                    <div class="h-64 flex items-end justify-between gap-1 md:gap-2 relative mb-3 bg-[#0e0e0e]/40 rounded-lg p-4 border border-white/5" id="vendor-monthly-chart">
+                        <!-- Chart bars injected here -->
+                    </div>
+                </div>
+
+                <!-- Right: Details panel -->
+                <div class="glass-panel p-6 rounded-xl border border-white/5 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-secondary font-headline-sm text-sm uppercase tracking-wider font-bold mb-4 flex items-center gap-2" id="vendor-detail-month-title">
+                            Seleccione un mes
+                        </h4>
+                        
+                        <div class="space-y-4 mb-6">
+                            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                                <span class="text-xs text-on-surface-variant font-medium">Venta 2025</span>
+                                <span class="font-mono font-bold text-slate-300" id="detail-accum-2025">S/. 0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                                <span class="text-xs text-on-surface-variant font-medium">Venta 2026</span>
+                                <span class="font-mono font-bold text-emerald-400" id="detail-accum-2026">S/. 0.00</span>
+                            </div>
+                            <div class="pt-2 bg-surface-container/30 rounded-lg p-3 text-center border border-white/5" id="detail-comparative-result">
+                                <!-- Happy/Sad face and diff -->
+                                <p class="text-xs text-on-surface-variant">Esperando selección...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto">
+                        <button id="evaluate-meta-btn" onclick="evaluarMetaMes()" class="w-full py-3 mb-4 bg-secondary/20 hover:bg-secondary/40 text-secondary border border-secondary/50 rounded-lg font-label-caps text-xs tracking-widest transition-all hidden">
+                            EVALUAR META
+                        </button>
+                        
+                        <div id="meta-results-panel" class="hidden glass-panel p-4 rounded-xl border border-white/5 text-center transition-all">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[10px] text-on-surface-variant uppercase tracking-wider">Meta Mensual</span>
+                                <span class="font-mono font-bold text-white text-xs" id="detail-meta-target">S/. 0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-[10px] text-on-surface-variant uppercase tracking-wider">Venta Mes 2026</span>
+                                <span class="font-mono font-bold text-secondary text-xs" id="detail-meta-month">S/. 0.00</span>
+                            </div>
+                            <div class="flex items-center justify-center gap-3 bg-black/40 py-2 rounded-lg border border-white/5" id="meta-final-status">
+                                <!-- Meta icons and % -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Entity New Clients Modal -->
+    <div id="entity-new-clients-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden z-50 p-4" onclick="if(event.target === this) closeEntityNewClients()">
+        <div class="glass-panel p-8 rounded-2xl w-full max-w-4xl mx-auto border border-white/10 shadow-2xl max-h-[85vh] overflow-y-auto bg-surface">
+            <div class="flex justify-between items-center mb-6 pb-2 border-b border-white/10">
+                <h3 class="text-2xl font-display-lg text-secondary flex items-center gap-2 font-bold" id="entity-new-clients-title">
+                    Clientes Nuevos
+                </h3>
+                <button onclick="closeEntityNewClients()" class="p-2 text-on-surface-variant hover:text-secondary rounded-full hover:bg-white/5 transition-all">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-on-surface min-w-[500px]">
+                    <thead>
+                        <tr class="text-on-surface-variant font-label-caps text-xs border-b border-white/10">
+                            <th class="pb-3 pl-2">Cliente</th>
+                            <th class="pb-3 text-center">Mes Activación</th>
+                            <th class="pb-3 text-right">Compra Total Acumulada</th>
+                        </tr>
+                    </thead>
+                    <tbody id="entity-new-clients-table-body" class="divide-y divide-white/5">
+                        <!-- Injected new clients list -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Detail Floating Modal (Reused) -->
+    <div id="client-detail-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden z-50 p-4" onclick="if(event.target === this) closeClientDetail()">
+        <div class="glass-panel p-8 rounded-2xl w-full max-w-2xl mx-auto border border-white/10 shadow-2xl max-h-[85vh] overflow-y-auto bg-surface">
+            <div class="flex justify-between items-center mb-6 pb-2 border-b border-white/10">
+                <h3 class="text-2xl font-display-lg text-secondary flex items-center gap-2 font-bold">
+                    <span class="material-symbols-outlined text-secondary text-3xl">account_circle</span>
+                    Ficha del Cliente
+                </h3>
+                <button onclick="closeClientDetail()" class="p-2 text-on-surface-variant hover:text-secondary rounded-full hover:bg-white/5 transition-all">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="glass-panel p-4 rounded-xl border border-white/5">
+                    <p class="text-slate-400 text-xs font-label-caps">CLIENTE / RAZÓN SOCIAL</p>
+                    <p class="text-lg font-bold text-white mt-1" id="detail-client-name">-</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-white/5">
+                    <p class="text-slate-400 text-xs font-label-caps">VENDEDOR CORRESPONDIENTE</p>
+                    <p class="text-lg font-bold text-secondary mt-1" id="detail-client-seller">-</p>
+                </div>
+            </div>
+            <div class="glass-panel p-6 rounded-xl border border-white/5 mb-6">
+                <h4 class="text-white font-headline-sm text-sm uppercase tracking-wider font-bold mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">trending_up</span>
+                    Historial de Compras 2026
+                </h4>
+                <div class="h-64 flex items-end justify-between gap-1 px-2 relative mb-3 bg-[#0e0e0e]/40 rounded-lg p-4 pt-10 border border-white/5 overflow-visible" id="detail-monthly-chart">
+                    <!-- Injected client monthly bars -->
+                </div>
+                <div class="flex justify-between px-2 font-label-caps text-[10px] text-on-surface-variant">
+                    <span>ENE</span><span>FEB</span><span>MAR</span><span>ABR</span><span>MAY</span><span>JUN</span><span>JUL</span><span>AGO</span><span>SEP</span><span>OCT</span><span>NOV</span><span>DIC</span>
+                </div>
+            </div>
+            <div class="flex justify-between items-center glass-panel p-4 rounded-xl border-l-4 border-secondary bg-surface-container-lowest">
+                <p class="text-slate-400 text-xs font-label-caps uppercase">Total Compras Acumuladas</p>
+                <p class="text-2xl font-bold text-emerald-400 font-mono" id="detail-total-accumulated">S/. 0.00</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/reporte_de_ventas.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>

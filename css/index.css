@@ -1,0 +1,46 @@
+/***** Estilos Generales *****/
+.glass-panel {
+    background: rgba(19, 19, 19, 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.infinite-scroll {
+    display: flex;
+    flex-wrap: nowrap;
+    width: max-content;
+    height: 100%;
+    animation: scroll 35s linear infinite;
+}
+
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-33.3333%); }
+}
+
+.fade-in-out {
+    animation: fadeInOut 15s infinite;
+}
+
+.fade-2 { animation-delay: 5s; }
+.fade-3 { animation-delay: 10s; }
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #0e0e0e;
+}
+::-webkit-scrollbar-thumb {
+    background: #353535;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #e9c349;
+}
+
+

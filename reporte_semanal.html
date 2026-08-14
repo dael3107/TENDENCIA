@@ -79,6 +79,11 @@
     </style>
 </head>
 <body class="bg-background text-on-surface font-body-md min-h-screen">
+    <!-- Auth Loading Overlay -->
+    <div id="auth-loading" class="fixed inset-0 bg-[#0e0e0e] z-[9999] flex flex-col items-center justify-center">
+        <div class="w-16 h-16 border-4 border-secondary border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="font-label-caps text-[14px] text-secondary tracking-widest uppercase">Verificando sesión...</p>
+    </div>
 
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="fixed inset-0 bg-[#0e0e0e] z-[999] flex flex-col items-center justify-center transition-opacity duration-500">
@@ -91,7 +96,7 @@
         <nav class="flex justify-between items-center max-w-[1200px] mx-auto px-margin-mobile md:px-container-padding h-20">
             <a href="index.html" class="font-display-lg text-headline-md tracking-tighter text-on-surface hover:text-secondary transition-colors">TENDENCIA</a>
             <div class="flex items-center gap-4">
-                <button class="font-label-caps text-label-caps text-secondary px-6 py-2 border border-secondary/30 rounded-lg hover:bg-secondary/10 transition-all duration-300">INGRESAR</button>
+                <button id="nav-auth-btn" onclick="window.logout()" class="font-label-caps text-label-caps text-red-400 px-6 py-2 border border-red-400/30 rounded-lg hover:bg-red-400/10 transition-all duration-300 flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">logout</span> SALIR</button>
                 <button id="menu-toggle" onclick="toggleMenu()" class="w-10 h-10 flex items-center justify-center rounded-lg border border-white/10 hover:border-secondary/50 hover:bg-white/5 transition-all">
                     <span class="material-symbols-outlined text-on-surface-variant">menu</span>
                 </button>
@@ -227,5 +232,9 @@
 
     <script src="js/reporte_semanal.js"></script>
     <script src="js/index.js"></script>
+        <!-- Firebase Compat SDK (Para que funcione en local sin servidor) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>

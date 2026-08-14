@@ -63,7 +63,9 @@ async function fetchClientsData() {
         
         validVendors.forEach(row => {
             const vendor = row.VENDEDOR.toUpperCase().trim();
-            const year = row.AÑO ? row.AÑO.trim() : null;
+            const yearKey = Object.keys(row).find(k => k.startsWith('A') && k.endsWith('O') && k.length === 3) || 'AÑO';
+            const rawYear = row[yearKey] || row['AÑO'] || row['AO'];
+            const year = rawYear ? String(rawYear).trim() : null;
             if (!vendor || !year) return;
             
             if (!vendorData[vendor]) {
@@ -92,7 +94,7 @@ async function fetchClientsData() {
 
     } catch (err) {
         console.error("Error loading data:", err);
-        alert("Error de conexión al cargar datos.");
+        console.error("Error al cargar datos:", err);
     } finally {
         if (loader) {
             loader.classList.add('opacity-0');
@@ -115,7 +117,7 @@ function updateVendorCards() {
 
 function selectEntity(vendorKey) {
     if (!vendorData[vendorKey]) {
-        alert("No hay datos cargados para " + vendorKey);
+        console.warn("No hay datos para:", vendorKey); return;
         return;
     }
     
@@ -336,7 +338,7 @@ function triggerFireworks() {
 /* ======= KEEPING OLD CLIENTES NUEVOS LOGIC ======= */
 function openEntityNewClients(entityKey) {
     if (entityKey === 'REDIPLAST') {
-        alert("La vista de clientes nuevos se gestiona por vendedor individual.");
+        console.info("Vista de clientes nuevos solo por vendedor");
         return;
     }
 

@@ -80,7 +80,7 @@ async function fetchClientsData() {
         updateBarChart();
     } catch (err) {
         console.error("Error loading data from SheetDB:", err);
-        alert("Error de conexión al cargar datos de SheetDB.");
+        console.error("Error al cargar datos de SheetDB:", err);
     } finally {
         if (loader) {
             loader.classList.add('opacity-0');

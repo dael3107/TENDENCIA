@@ -3,87 +3,88 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>TENDENCIA - Reporte de Ventas</title>
+    <title>TENDENCIA 2026 | Business Intelligence Dashboard</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMTMxMzEzIi8+PHBhdGggZD0iTTI1IDMwIGg1MCB2MTUgaC0xNy41IHYzNSBoLTE1IHYtMzUgaC0xNy41IHoiIGZpbGw9IiNlOWMzNDkiLz48L3N2Zz4=">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/reporte_de_ventas.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    
     <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "secondary": "#e9c349",
-                    "on-background": "#e5e2e1",
-                    "on-surface-variant": "#c4c7c7",
-                    "surface-container": "#20201f",
-                    "surface-container-high": "#2a2a2a",
-                    "background": "#131313",
-                    "on-surface": "#e5e2e1",
-                    "surface-container-highest": "#353535",
-                    "surface-container-lowest": "#0e0e0e",
-                    "surface-container-low": "#1c1b1b",
-                    "surface": "#131313"
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#c9c6c5",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-container": "#20201f",
+                        "surface-container-highest": "#353535",
+                        "tertiary": "#c6c6c7",
+                        "secondary": "#e9c349",
+                        "background": "#131313",
+                        "on-surface": "#e5e2e1",
+                        "surface": "#131313",
+                        "on-tertiary-container": "#78797a",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-surface-variant": "#c4c7c7",
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                    },
+                    "spacing": {
+                        "stack-sm": "12px",
+                        "margin-mobile": "20px",
+                        "stack-md": "24px",
+                        "stack-lg": "48px",
+                        "gutter": "24px",
+                        "base": "8px",
+                        "container-padding": "40px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Manrope", "sans-serif"],
+                        "headline-sm": ["Sora", "sans-serif"],
+                        "label-caps": ["JetBrains Mono", "monospace"],
+                        "headline-md": ["Sora", "sans-serif"],
+                        "display-lg": ["Sora", "sans-serif"],
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "500"}],
+                        "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "display-lg": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    }
+                },
             },
-            "borderRadius": {
-                    "lg": "0.5rem",
-                    "xl": "0.75rem",
-                    "full": "9999px"
-            },
-            "spacing": {
-                    "stack-lg": "48px",
-                    "margin-mobile": "20px",
-                    "gutter": "24px",
-                    "container-padding": "40px",
-                    "base": "8px",
-                    "stack-sm": "12px",
-                    "stack-md": "24px"
-            },
-            "fontFamily": {
-                    "headline-md": ["Sora", "sans-serif"],
-                    "body-md": ["Manrope", "sans-serif"],
-                    "headline-sm": ["Sora", "sans-serif"],
-                    "display-lg-mobile": ["Sora", "sans-serif"],
-                    "label-caps": ["JetBrains Mono", "monospace"],
-                    "display-lg": ["Sora", "sans-serif"],
-                    "body-lg": ["Manrope", "sans-serif"]
-            },
-            "fontSize": {
-                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
-                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
-                    "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
-                    "display-lg-mobile": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                    "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "500"}],
-                    "display-lg": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
-            }
-          },
-        },
-      }
+        }
     </script>
+    <link rel="stylesheet" href="css/reporte_de_ventas.css">
 </head>
-<body class="font-body-md text-body-md overflow-x-hidden min-h-screen">
+
+<body class="bg-background text-on-surface font-body-md min-h-screen">
+    <!-- Auth Loading Overlay -->
+    <div id="auth-loading" class="fixed inset-0 bg-[#0e0e0e] z-[9999] flex flex-col items-center justify-center">
+        <div class="w-16 h-16 border-4 border-secondary border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="font-label-caps text-[14px] text-secondary tracking-widest uppercase">Verificando sesión...</p>
+    </div>
     <!-- Full Screen Loading Overlay -->
     <div id="loading-overlay" class="fixed inset-0 bg-[#0e0e0e] z-[999] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="w-16 h-16 border-4 border-secondary border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="font-label-caps text-[14px] text-secondary tracking-widest uppercase">Cargando reporte comercial...</p>
+        <p class="font-label-caps text-[14px] text-secondary tracking-widest uppercase">Cargando base de datos...</p>
     </div>
-
-    <!-- TopNavBar -->
-    <nav class="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-white/5 h-20">
-        <div class="max-w-[1200px] mx-auto flex justify-between items-center h-full px-container-padding">
-            <a class="font-display-lg text-headline-md tracking-tighter text-on-surface hover:text-secondary transition-colors" href="index.html">TENDENCIA</a>
+    <!-- TopNavBar Header -->
+    <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/5 shadow-sm">
+        <nav class="flex justify-between items-center max-w-[1200px] mx-auto px-margin-mobile md:px-container-padding h-20">
+            <a href="index.html" class="font-display-lg text-headline-md tracking-tighter text-on-surface hover:text-secondary transition-colors">TENDENCIA</a>
             <div class="flex items-center gap-4">
-                <button class="font-label-caps text-label-caps text-on-surface/80 hover:text-secondary border border-white/10 hover:border-secondary/40 px-4 py-2 rounded-lg transition-all duration-300">
-                    INGRESAR
-                </button>
+                <button id="nav-auth-btn" onclick="window.logout()" class="font-label-caps text-label-caps text-red-400 px-6 py-2 border border-red-400/30 rounded-lg hover:bg-red-400/10 transition-all duration-300 flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">logout</span> SALIR</button>
                 <button id="menu-toggle" onclick="toggleMenu()" class="w-10 h-10 flex items-center justify-center rounded-lg border border-white/10 hover:border-secondary/50 hover:bg-white/5 transition-all">
                     <span class="material-symbols-outlined text-on-surface-variant">menu</span>
                 </button>
             </div>
-        </div>
+        </nav>
         <div id="nav-dropdown" class="hidden absolute top-full right-0 w-64 mt-1 mr-4 glass-panel rounded-xl shadow-2xl border border-white/10 overflow-hidden">
             <div class="py-2">
                 <a href="index.html#history" class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:text-secondary hover:bg-white/5 transition-all font-headline-sm text-[14px] tracking-tight">
@@ -105,9 +106,8 @@
                 </a>
             </div>
         </div>
-    </nav>
-
-    <!-- Main Content -->
+    </header>
+<!-- Main Content -->
     <main class="pt-32 pb-stack-lg min-h-screen hero-gradient">
         <div class="max-w-[1200px] mx-auto px-container-padding">
             <!-- Header Section -->
@@ -124,7 +124,8 @@
                     </div>
                 </div>
             </header>
-            <!-- Sales Entities Section -->
+
+            <!-- Sales Entities Section -->
             <section class="space-y-gutter">
                 <!-- Entity Row: Roberto -->
                 <div id="row-ROBERTO" class="flex flex-col md:flex-row items-stretch md:items-center gap-gutter group border border-transparent rounded-lg transition-all" style="opacity: 1; transform: translateY(0px);">
@@ -408,5 +409,9 @@
 
     <script src="js/reporte_de_ventas.js"></script>
     <script src="js/index.js"></script>
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>

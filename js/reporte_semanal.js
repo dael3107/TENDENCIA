@@ -52,13 +52,17 @@ async function fetchData() {
         selectMonth(0); // Load January by default
     } catch (error) {
         console.error('Error fetching data:', error);
-        alert('Error al cargar los datos. Por favor, intente recargar la página.');
+        console.error('Error al cargar los datos. Por favor, intente recargar la página.');
     }
 }
 
 function processData(rawData) {
     // rawData contains rows for ROBERTO, ERNESTO, OFICINA, REDIPLAST for the year 2026 (or 2025 in fallback)
-    const yearData = rawData.filter(r => r['AÑO'] === '2026' || r['AÑO'] === '2025'); 
+    const yearData = rawData.filter(r => {
+        const yearKey = Object.keys(r).find(k => k.startsWith('A') && k.endsWith('O') && k.length === 3) || 'AÑO';
+        const rawYear = r[yearKey] || r['AÑO'] || r['AO'];
+        return rawYear === '2026' || rawYear === '2025';
+    }); 
     
     // Structure: globalData[monthIndex][vendor] = { total, objetivo, semanas: [] }
     monthNames.forEach((month, idx) => {

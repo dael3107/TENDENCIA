@@ -1,11 +1,16 @@
-const API_URL = 'https://sheetdb.io/api/v1/gmt72yfuvmfcq?sheet=REPORTE%20DE%20VENTAS%20VENDEDOR';
+﻿/**
+ * reporte_semanal.js
+ * Lógica para el dashboard de estadísticas semanales.
+ * Obtiene datos desde el servidor Node.js (/api/vendedores).
+ */
 
-// Constants and State
+// ─── Estado y Constantes ──────────────────────────────────────────────────────
+
 const monthNames = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
 let globalData = {};
 let selectedMonthIndex = 0;
 
-// Objetivos mensuales fijos extraídos de la captura (ya que SheetDB no lee la hoja con celdas combinadas)
+// Objetivos mensuales fijos extraídos de la regla de negocio
 const OBJETIVOS_MENSUALES = {
     'ROBERTO': 110000,
     'ERNESTO': 280000,
@@ -13,22 +18,28 @@ const OBJETIVOS_MENSUALES = {
     'REDIPLAST': 850000
 };
 
-// Utils
+// ─── Utilidades ───────────────────────────────────────────────────────────────
+
 const formatter = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
+
 const parseCurrency = (str) => {
     if (!str) return 0;
-    return parseFloat(str.replace(/[S/. ,]/g, '')) || 0;
+    return parseFloat(String(str).replace(/[S/. ,]/g, '')) || 0;
 };
 
+// ─── Inicialización ───────────────────────────────────────────────────────────
+
 document.addEventListener('DOMContentLoaded', () => {
-    // initMonthTabs();
-    // fetchData();
-    // Ocultar overlay directamente ya que estamos en mantenimiento
-    document.getElementById('loading-overlay').classList.add('hidden');
+    // initMonthTabs() y fetchData() se asumen comentadas si están en mantenimiento 
+    // pero las dejamos listas para cuando se active.
+    const loader = document.getElementById('loading-overlay');
+    if(loader) loader.classList.add('hidden');
 });
 
 function initMonthTabs() {
     const container = document.getElementById('month-tabs');
+    if(!container) return;
+    
     container.innerHTML = monthNames.map((m, i) => `
         <button onclick="selectMonth(${i})" 
                 id="tab-month-${i}"
@@ -38,33 +49,36 @@ function initMonthTabs() {
     `).join('');
 }
 
+// ─── Carga de Datos ───────────────────────────────────────────────────────────
+
 async function fetchData() {
     try {
-        const response = await fetch(API_URL);
+        const response = await fetch('/api/vendedores');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const rawData = await response.json();
         
-        // Transform the data from REPORTE DE VENTAS VENDEDOR to simulate the weekly stats
         processData(rawData);
         
-        document.getElementById('loading-overlay').style.opacity = '0';
-        setTimeout(() => document.getElementById('loading-overlay').classList.add('hidden'), 500);
+        const loader = document.getElementById('loading-overlay');
+        if(loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => loader.classList.add('hidden'), 500);
+        }
         
-        selectMonth(0); // Load January by default
+        selectMonth(0); // Cargar Enero por defecto
     } catch (error) {
         console.error('Error fetching data:', error);
-        console.error('Error al cargar los datos. Por favor, intente recargar la página.');
     }
 }
 
 function processData(rawData) {
-    // rawData contains rows for ROBERTO, ERNESTO, OFICINA, REDIPLAST for the year 2026 (or 2025 in fallback)
+    // Filtrar para asegurar que solo trabajamos con el año correcto (2026 o 2025 fallback)
     const yearData = rawData.filter(r => {
         const yearKey = Object.keys(r).find(k => k.startsWith('A') && k.endsWith('O') && k.length === 3) || 'AÑO';
-        const rawYear = r[yearKey] || r['AÑO'] || r['AO'];
+        const rawYear = String(r[yearKey] || r['AÑO'] || r['AO']).trim();
         return rawYear === '2026' || rawYear === '2025';
     }); 
     
-    // Structure: globalData[monthIndex][vendor] = { total, objetivo, semanas: [] }
     monthNames.forEach((month, idx) => {
         globalData[idx] = {};
         
@@ -73,18 +87,11 @@ function processData(rawData) {
             const totalVendido = parseCurrency(vendorRow[month]);
             const objetivo = OBJETIVOS_MENSUALES[vendor] || 0;
             
-            // Simular 4 semanas basadas en el total mensual (ya que el API de ESTADISTICA SEMANAL no expone las columnas)
+            // Simular 4 semanas
             const semanaBase = totalVendido / 4;
-            // Añadir un poco de variación realista
-            const semanas = [
-                semanaBase * 0.9,
-                semanaBase * 1.1,
-                semanaBase * 0.95,
-                semanaBase * 1.05
-            ];
-            
-            // Si no hay ventas, las semanas son 0
-            if (totalVendido === 0) semanas.fill(0);
+            const semanas = totalVendido === 0 
+                ? [0, 0, 0, 0] 
+                : [semanaBase * 0.9, semanaBase * 1.1, semanaBase * 0.95, semanaBase * 1.05];
 
             globalData[idx][vendor] = {
                 total: totalVendido,
@@ -96,10 +103,12 @@ function processData(rawData) {
     });
 }
 
+// ─── UI y Renderizado ─────────────────────────────────────────────────────────
+
 function selectMonth(index) {
-    // Update tabs UI
     document.querySelectorAll('.month-tab').forEach(tab => tab.classList.remove('active'));
-    document.getElementById(`tab-month-${index}`).classList.add('active');
+    const activeTab = document.getElementById(`tab-month-${index}`);
+    if (activeTab) activeTab.classList.add('active');
     
     selectedMonthIndex = index;
     renderCards(index);
@@ -110,8 +119,9 @@ function renderCards(monthIdx) {
     const monthData = globalData[monthIdx];
     const cardsContainer = document.getElementById('vendor-cards');
     const summaryContainer = document.getElementById('month-summary');
+    if(!cardsContainer || !summaryContainer) return;
     
-    // Resumen del mes (Totales)
+    // Resumen del mes
     const rediplastData = monthData['REDIPLAST'];
     const porcentajeTotal = rediplastData.objetivo > 0 ? (rediplastData.total / rediplastData.objetivo) * 100 : 0;
     
@@ -136,13 +146,10 @@ function renderCards(monthIdx) {
         </div>
     `;
 
-    // Render Cards
     const vendors = ['ROBERTO', 'ERNESTO', 'OFICINA', 'REDIPLAST'];
     const cardClasses = {
-        'ROBERTO': 'card-roberto',
-        'ERNESTO': 'card-ernesto',
-        'OFICINA': 'card-oficina',
-        'REDIPLAST': 'card-rediplast'
+        'ROBERTO': 'card-roberto', 'ERNESTO': 'card-ernesto',
+        'OFICINA': 'card-oficina', 'REDIPLAST': 'card-rediplast'
     };
 
     cardsContainer.innerHTML = vendors.map(vendor => {
@@ -155,11 +162,8 @@ function renderCards(monthIdx) {
         else if (percent >= 90) { statusColor = 'bg-secondary'; statusTextClass = 'text-secondary'; }
         else if (percent >= 70) { statusColor = 'bg-orange-400'; statusTextClass = 'text-orange-400'; }
 
-        // Calcular deficit acumulado hasta este mes
         let acumulado = 0;
-        for (let i = 0; i <= monthIdx; i++) {
-            acumulado += globalData[i][vendor].deficitMes;
-        }
+        for (let i = 0; i <= monthIdx; i++) acumulado += globalData[i][vendor].deficitMes;
 
         const isPositive = data.deficitMes <= 0;
         const msgFalto = isPositive ? 'SUPERÓ OBJETIVO' : 'LE FALTÓ';
@@ -182,12 +186,10 @@ function renderCards(monthIdx) {
                     </div>
                 </div>
 
-                <!-- Progress Bar -->
                 <div class="h-2 w-full bg-white/10 rounded-full mb-6 overflow-hidden">
                     <div class="h-full ${statusColor} rounded-full" style="width: ${Math.min(percent, 100)}%"></div>
                 </div>
 
-                <!-- Table -->
                 <div class="bg-[#0a0a0a]/50 rounded-lg border border-white/5 overflow-hidden mb-6">
                     <table class="w-full text-sm text-left">
                         <thead class="text-[10px] font-label-caps text-on-surface-variant border-b border-white/5 bg-white/5">
@@ -212,7 +214,6 @@ function renderCards(monthIdx) {
                     </table>
                 </div>
 
-                <!-- Deficits -->
                 <div class="space-y-2">
                     <div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-highest border ${isPositive ? 'border-emerald-500/20' : 'border-red-500/20'}">
                         <div class="flex items-center gap-2">
@@ -223,7 +224,6 @@ function renderCards(monthIdx) {
                             ${isPositive ? '+' : '-'}${formatter.format(Math.abs(data.deficitMes))}
                         </span>
                     </div>
-                    
                     <div class="flex items-center justify-between p-3 rounded-lg bg-[#0e0e0e] border border-white/5">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-[18px] text-secondary">stacked_line_chart</span>
@@ -241,17 +241,18 @@ function renderCards(monthIdx) {
 
 function renderDeficitTimeline(currentMonthIdx) {
     const deficitContainer = document.getElementById('deficit-section');
+    const timelineContainer = document.getElementById('timeline-section');
+    if(!deficitContainer || !timelineContainer) return;
+    
     const vendors = ['ROBERTO', 'ERNESTO', 'OFICINA', 'REDIPLAST'];
     
     deficitContainer.innerHTML = vendors.map(vendor => {
-        // Calcular acumulado de enero a currentMonthIdx
         let timelineHtml = '';
         let saldo = 0;
         
         for (let i = 0; i <= currentMonthIdx; i++) {
             const dataMes = globalData[i][vendor];
-            saldo += dataMes.deficitMes; // positivo significa que falta (déficit), negativo significa que sobra
-            
+            saldo += dataMes.deficitMes;
             const isRecuperacion = dataMes.deficitMes < 0;
             const arrow = i === 0 ? '' : `<span class="material-symbols-outlined text-[14px] text-white/20 mx-1">arrow_right_alt</span>`;
             
@@ -260,7 +261,7 @@ function renderDeficitTimeline(currentMonthIdx) {
                 <div class="flex flex-col items-center">
                     <span class="text-[9px] font-label-caps text-on-surface-variant">${monthNames[i].substring(0,3)}</span>
                     <span class="text-[10px] font-mono font-bold ${isRecuperacion ? 'text-emerald-400' : 'text-red-400'}">
-                        ${isRecuperacion ? '+' : '-'}${formatter.format(Math.abs(dataMes.deficitMes)).replace('S/ ', '')}
+                        ${isRecuperacion ? '+' : '-'}${formatter.format(Math.abs(dataMes.deficitMes)).replace('S/\\u00A0', '')}
                     </span>
                 </div>
             `;
@@ -268,9 +269,7 @@ function renderDeficitTimeline(currentMonthIdx) {
 
         const saldoFinal = saldo;
         const colorBar = saldoFinal <= 0 ? 'bg-emerald-400' : 'bg-red-500';
-        
-        // Find max deficit to scale bars across all vendors
-        const maxDeficit = 500000; // Fixed scale for visual consistency
+        const maxDeficit = 500000;
         const widthPct = Math.min((Math.abs(saldoFinal) / maxDeficit) * 100, 100);
 
         return `
@@ -278,9 +277,7 @@ function renderDeficitTimeline(currentMonthIdx) {
                 <div class="flex justify-between items-end mb-2">
                     <div class="flex items-center gap-4">
                         <span class="font-headline-sm text-sm w-24">${vendor}</span>
-                        <div class="hidden md:flex items-center bg-white/5 px-3 py-1.5 rounded border border-white/5">
-                            ${timelineHtml}
-                        </div>
+                        <div class="hidden md:flex items-center bg-white/5 px-3 py-1.5 rounded border border-white/5">${timelineHtml}</div>
                     </div>
                     <div class="text-right">
                         <p class="text-[10px] font-label-caps text-on-surface-variant">SALDO ACTUAL</p>
@@ -296,30 +293,25 @@ function renderDeficitTimeline(currentMonthIdx) {
         `;
     }).join('');
 
-    // Timeline gráfico mensual
-    const timelineContainer = document.getElementById('timeline-section');
     timelineContainer.innerHTML = `
         <div class="flex gap-1 h-40 items-end px-2 pt-4">
             ${monthNames.slice(0, currentMonthIdx + 1).map((m, i) => {
                 const r = globalData[i]['REDIPLAST'];
                 const h1 = Math.min((r.total / Math.max(r.objetivo, 1)) * 100, 100);
-                const h2 = 100; // Representa el objetivo
+                const h2 = 100;
                 
                 return `
                 <div class="flex-1 flex flex-col items-center group relative cursor-pointer">
-                    <!-- Tooltip -->
                     <div class="absolute -top-12 left-1/2 -translate-x-1/2 text-[10px] font-label-caps bg-surface border border-white/10 px-2 py-1 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 text-center">
                         <span class="text-secondary block">${formatter.format(r.total)}</span>
                         <span class="text-on-surface-variant text-[8px]">Obj: ${formatter.format(r.objetivo)}</span>
                     </div>
-                    <!-- Barras -->
                     <div class="w-full flex justify-center gap-1 items-end h-32 mb-2">
                         <div class="w-1/3 bg-secondary rounded-t hover:bg-secondary/80 transition-colors" style="height: ${h1}%"></div>
                         <div class="w-1/3 bg-white/10 rounded-t" style="height: ${h2}%"></div>
                     </div>
                     <span class="text-[10px] font-label-caps text-on-surface-variant">${m.substring(0,3)}</span>
-                </div>
-                `;
+                </div>`;
             }).join('')}
         </div>
         <div class="flex justify-center gap-6 mt-4 pt-4 border-t border-white/5">

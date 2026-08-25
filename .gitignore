@@ -1,0 +1,12 @@
+# Dependencias de Node.js
+node_modules/
+
+# Archivo de variables de entorno - NUNCA subir a GitHub
+.env
+
+# Credenciales del Service Account - NUNCA subir a GitHub
+credentials.json
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db

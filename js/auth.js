@@ -13,6 +13,23 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
+// Se resuelve con el usuario en cuanto Firebase confirma que hay sesión
+const userReady = new Promise(resolve => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+        if (user) {
+            unsubscribe();
+            resolve(user);
+        }
+    });
+});
+
+// fetch() que envía el token de sesión. El servidor rechaza /api/* sin él.
+window.apiFetch = async (url) => {
+    const user  = await userReady;
+    const token = await user.getIdToken();
+    return fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+};
+
 // Detectar si es la página pública (inicio)
 const isPublicPage = window.location.pathname.endsWith('index.html')
     || window.location.pathname === '/'
@@ -116,6 +133,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const navAuthBtn = document.getElementById('nav-auth-btn');
         const menuToggle = document.getElementById('menu-toggle');
+        const heroDashboardBtn = document.getElementById('hero-dashboard-btn');
+        if (heroDashboardBtn) {
+            heroDashboardBtn.classList.toggle('hidden', !user);
+            heroDashboardBtn.classList.toggle('inline-flex', !!user);
+        }
 
         if (user) {
             // ── USUARIO LOGUEADO ──

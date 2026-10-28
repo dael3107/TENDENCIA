@@ -18,6 +18,10 @@ const monthNamesFull = {
     'SEP': 'Septiembre', 'OCT': 'Octubre', 'NOV': 'Noviembre', 'DIC': 'Diciembre'
 };
 
+// Mes actual de 2026: sus ventas aún están incompletas y no se deben juzgar como mes cerrado
+const today = new Date();
+const CURRENT_MONTH_IDX = today.getFullYear() === 2026 ? today.getMonth() : (today.getFullYear() > 2026 ? 12 : -1);
+
 const formatter = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
 const formatterShort = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', maximumFractionDigits: 0 });
 
@@ -38,8 +42,8 @@ async function fetchClientsData() {
         if (loader) loader.classList.remove('hidden', 'opacity-0');
         
         const [resClients, resVendors] = await Promise.all([
-            fetch('/api/clientes'),
-            fetch('/api/vendedores')
+            apiFetch('/api/clientes'),
+            apiFetch('/api/vendedores')
         ]);
         
         if (!resClients.ok || !resVendors.ok) throw new Error('Error al cargar datos desde la API.');
@@ -211,13 +215,20 @@ function selectVendorMonth(idx) {
     document.getElementById('detail-accum-2026').innerText = formatter.format(acc2026);
     
     const compDiv = document.getElementById('detail-comparative-result');
-    if (acc2026 > acc2025 && acc2025 > 0) {
+    if (idx > CURRENT_MONTH_IDX) {
+        compDiv.innerHTML = `<span class="text-sm text-slate-300 font-bold">Mes aún no iniciado</span>`;
+    } else if (idx === CURRENT_MONTH_IDX) {
+        compDiv.innerHTML = `
+            <div class="flex flex-col items-center gap-1 text-secondary">
+                <span class="font-bold text-sm">⏳ Mes en curso</span>
+                <span class="text-xs text-on-surface-variant">${formatter.format(acc2026)} a la fecha · 2025 cerró en ${formatter.format(acc2025)}</span>
+            </div>`;
+    } else if (acc2026 > acc2025 && acc2025 > 0) {
         compDiv.innerHTML = `
             <div class="flex items-center justify-center gap-2 text-emerald-400">
                 <span class="text-2xl">😊</span>
                 <span class="font-bold text-sm">+ ${formatter.format(acc2026 - acc2025)} superado</span>
             </div>`;
-        triggerFireworks();
     } else if (acc2026 < acc2025) {
         compDiv.innerHTML = `
             <div class="flex items-center justify-center gap-2 text-red-400">
@@ -232,7 +243,7 @@ function selectVendorMonth(idx) {
     document.getElementById('meta-results-panel').classList.add('hidden');
 }
 
-// ─── Evaluación de Meta y Efectos ─────────────────────────────────────────────
+// ─── Evaluación de Meta ─────────────────────────────────────────────────────
 
 function evaluarMetaMes() {
     if (selectedMonthIdxForModal === null || !selectedVendorForModal) return;
@@ -246,8 +257,12 @@ function evaluarMetaMes() {
     
     const pct = meta > 0 ? (monthlySales / meta) * 100 : 0;
     const statusDiv = document.getElementById('meta-final-status');
-    
-    if (pct < 70) {
+
+    if (selectedMonthIdxForModal > CURRENT_MONTH_IDX) {
+        statusDiv.innerHTML = `<span class="text-3xl">🗓️</span><div class="text-left"><span class="block text-slate-300 font-bold text-lg">—</span><span class="text-[9px] text-on-surface-variant uppercase">Mes aún no iniciado</span></div>`;
+    } else if (selectedMonthIdxForModal === CURRENT_MONTH_IDX && pct < 100) {
+        statusDiv.innerHTML = `<span class="text-3xl">⏳</span><div class="text-left"><span class="block text-secondary font-bold text-lg">${pct.toFixed(1)}%</span><span class="text-[9px] text-on-surface-variant uppercase">Mes en curso · avance a la fecha</span></div>`;
+    } else if (pct < 70) {
         statusDiv.innerHTML = `<span class="text-3xl">😢</span><div class="text-left"><span class="block text-red-400 font-bold text-lg">${pct.toFixed(1)}%</span><span class="text-[9px] text-on-surface-variant uppercase">Bajo rendimiento</span></div>`;
     } else if (pct >= 70 && pct < 90) {
         statusDiv.innerHTML = `<span class="text-3xl">🙂</span><div class="text-left"><span class="block text-yellow-400 font-bold text-lg">${pct.toFixed(1)}%</span><span class="text-[9px] text-on-surface-variant uppercase">Casi en la meta</span></div>`;
@@ -255,22 +270,10 @@ function evaluarMetaMes() {
         statusDiv.innerHTML = `<span class="text-3xl">😊</span><div class="text-left"><span class="block text-emerald-400 font-bold text-lg">${pct.toFixed(1)}%</span><span class="text-[9px] text-on-surface-variant uppercase">Buen trabajo</span></div>`;
     } else {
         statusDiv.innerHTML = `<span class="text-3xl">🤩</span><div class="text-left"><span class="block text-secondary font-bold text-lg">${pct.toFixed(1)}%</span><span class="text-[9px] text-on-surface-variant uppercase">¡Meta Cumplida! 🎉</span></div>`;
-        triggerFireworks();
     }
     
     document.getElementById('evaluate-meta-btn').classList.add('hidden');
     document.getElementById('meta-results-panel').classList.remove('hidden');
-}
-
-function triggerFireworks() {
-    if (typeof confetti === 'function') {
-        const end = Date.now() + 2000;
-        (function frame() {
-            confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#e9c349', '#ffffff'] });
-            confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#e9c349', '#ffffff'] });
-            if (Date.now() < end) requestAnimationFrame(frame);
-        }());
-    }
 }
 
 // ─── Modal: Clientes Nuevos ───────────────────────────────────────────────────
@@ -283,6 +286,7 @@ function openEntityNewClients(entityKey) {
     
     document.getElementById('entity-new-clients-title').innerText = `Clientes Nuevos 2026 - ${entityKey.toUpperCase()}`;
     modal.classList.remove('hidden');
+    modal.classList.add('flex', 'items-center', 'justify-center');
 
     const filtered = clientsDb.filter(c => c.seller === entityKey && c.isNewInMonth !== null);
     const monthOrder = { 'ENE':1,'FEB':2,'MAR':3,'ABR':4,'MAY':5,'JUN':6,'JUL':7,'AGO':8,'SEP':9,'OCT':10,'NOV':11,'DIC':12 };
@@ -290,7 +294,7 @@ function openEntityNewClients(entityKey) {
     filtered.sort((a, b) => monthOrder[a.isNewInMonth] - monthOrder[b.isNewInMonth]);
 
     if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-on-surface-variant italic">No se registraron nuevos clientes para ${entityKey.toUpperCase()} en 2026.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="3" class="px-6 py-8 text-center text-on-surface-variant italic">No se registraron nuevos clientes para ${entityKey.toUpperCase()} en 2026.</td></tr>`;
         return;
     }
 

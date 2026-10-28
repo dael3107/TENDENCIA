@@ -37,7 +37,7 @@ async function fetchClientsData() {
     try {
         if (loader) loader.classList.remove('hidden', 'opacity-0');
 
-        const response = await fetch('/api/clientes');
+        const response = await apiFetch('/api/clientes');
         if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
         const data = await response.json();
 
@@ -64,6 +64,8 @@ async function fetchClientsData() {
             }));
 
         console.log(`Dashboard: ${clientsDb.length} clientes cargados.`);
+        setDefaultCompareMonths();
+        renderKpis();
         selectMonth(selectedMonthCode);
         updateBarChart();
 
@@ -167,7 +169,8 @@ function renderNewClients(monthCode) {
     }
 
     tbody.innerHTML = newClients.map(c => {
-        const total = c.sales.reduce((a, b) => a + b, 0);
+        // Compra inicial = lo que compró en el mes en que se registró como nuevo
+        const compraInicial = c.sales[months[monthCode]];
         return `
             <tr class="hover:bg-white/5 transition-colors">
                 <td class="py-4 pl-2">
@@ -177,7 +180,7 @@ function renderNewClients(monthCode) {
                     </button>
                 </td>
                 <td class="py-4 text-center text-on-surface-variant">${c.seller}</td>
-                <td class="py-4 text-right font-mono font-semibold text-emerald-400">${fmt.format(total)}</td>
+                <td class="py-4 text-right font-mono font-semibold text-emerald-400">${fmt.format(compraInicial)}</td>
             </tr>`;
     }).join('');
 }
@@ -209,8 +212,6 @@ function showClientDetail(clientName) {
             </div>`;
     }).join('');
 
-    document.getElementById('search-dropdown').classList.add('hidden');
-    document.getElementById('client-search').value = '';
     const modal = document.getElementById('client-detail-modal');
     modal.classList.remove('hidden');
     modal.classList.add('flex', 'items-center', 'justify-center');
@@ -252,6 +253,52 @@ function closeTopClients() {
 }
 
 // ─── Modal: Reporte comparativo ───────────────────────────────────────────────
+
+/**
+ * Deja la comparativa en los dos últimos meses que tienen ventas (ej. SEP vs OCT),
+ * para no comparar contra un mes que todavía está vacío.
+ */
+// ─── Indicadores principales ──────────────────────────────────────────────────
+
+function renderKpis() {
+    const fmt   = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', maximumFractionDigits: 0 });
+    const codes = Object.keys(months);
+    const monthTotal = code => clientsDb.reduce((s, c) => s + c.sales[months[code]], 0);
+    const withSales  = codes.filter(code => monthTotal(code) > 0);
+
+    const last = withSales[withSales.length - 1];
+    if (!last) return;
+    const today = new Date();
+    const enCurso = today.getFullYear() === 2026 && months[last] === today.getMonth();
+
+    // El promedio solo usa meses cerrados para que el mes en curso no lo baje
+    const cerrados = enCurso ? withSales.slice(0, -1) : withSales;
+    const total = codes.reduce((s, code) => s + monthTotal(code), 0);
+    document.getElementById('kpi-total').innerText = fmt.format(total);
+    if (cerrados.length) {
+        const totalCerrados = cerrados.reduce((s, code) => s + monthTotal(code), 0);
+        document.getElementById('kpi-total-sub').innerText =
+            `Promedio ${fmt.format(totalCerrados / cerrados.length)} al mes (${cerrados.length} ${cerrados.length === 1 ? 'mes cerrado' : 'meses cerrados'})`;
+    }
+
+    const activos = clientsDb.filter(c => c.sales[months[last]] > 0).length;
+    const nuevos  = clientsDb.filter(c => c.isNewInMonth === last).length;
+    document.getElementById('kpi-clients-label').innerText = `CLIENTES QUE COMPRARON EN ${monthNamesFull[last].toUpperCase()}`;
+    document.getElementById('kpi-clients').innerText = activos;
+    document.getElementById('kpi-clients-sub').innerText =
+        `de ${clientsDb.length.toLocaleString('es-PE')} en cartera · ${nuevos} ${nuevos === 1 ? 'nuevo' : 'nuevos'}`;
+
+    document.getElementById('data-updated-at').innerText =
+        `ACTUALIZADO ${today.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}`;
+}
+
+function setDefaultCompareMonths() {
+    const codes = Object.keys(months);
+    const withSales = codes.filter(code => clientsDb.some(c => c.sales[months[code]] > 0));
+    if (withSales.length < 2) return;
+    document.getElementById('compare-base').value   = withSales[withSales.length - 2];
+    document.getElementById('compare-target').value = withSales[withSales.length - 1];
+}
 
 function swapCompareMonths() {
     const a = document.getElementById('compare-base');
@@ -309,32 +356,12 @@ function closeCrossoverModal() {
     modal.classList.remove('flex', 'items-center', 'justify-center');
 }
 
-// ─── Buscador en tiempo real ──────────────────────────────────────────────────
-
-const searchInput    = document.getElementById('client-search');
-const searchDropdown = document.getElementById('search-dropdown');
-
-searchInput.addEventListener('input', e => {
-    const q = e.target.value.toLowerCase().trim();
-    if (q.length < 2) { searchDropdown.classList.add('hidden'); return; }
-
-    const matches = clientsDb.filter(c => c.name.toLowerCase().includes(q) || c.seller.toLowerCase().includes(q));
-    searchDropdown.classList.remove('hidden');
-
-    searchDropdown.innerHTML = matches.length === 0
-        ? `<div class="px-4 py-3 text-sm text-on-surface-variant italic text-center">No se encontraron resultados</div>`
-        : matches.slice(0, 8).map(c => `
-            <div onclick="showClientDetail('${c.name.replace(/'/g, "\\'")}')" class="px-4 py-3 text-sm text-white hover:bg-white/10 hover:text-secondary cursor-pointer transition-colors flex justify-between items-center">
-                <span class="font-medium">${c.name}</span>
-                <span class="text-xs font-label-caps text-on-surface-variant">${c.seller}</span>
-            </div>`).join('');
-});
-
 document.addEventListener('click', e => {
-    if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) searchDropdown.classList.add('hidden');
     if (selectedMonthCode !== null) {
         const grid = document.getElementById('month-buttons-grid');
-        if (grid && !grid.contains(e.target)) selectMonth(null);
+        // Los clics dentro de la lista de clientes nuevos o de un modal no deseleccionan el mes
+        const insideClientsOrModal = e.target.closest('#new-clients-table-body, [id$="-modal"]');
+        if (grid && !grid.contains(e.target) && !insideClientsOrModal) selectMonth(null);
     }
 });
 
